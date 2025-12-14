@@ -17,14 +17,14 @@ M.setup = function()
 	vim.api.nvim_create_autocmd("FileType", {
 		pattern = "vhdl",
 		callback = function()
-			-- Set buffer-local conceal options
+			-- Buffer-local conceal options
 			vim.opt_local.conceallevel = 2
 			vim.opt_local.concealcursor = "nc"
 
-			-- Defer execution to ensure buffer/window is ready
-			vim.schedule(function()
+			-- Defer execution slightly to ensure buffer/window is ready
+			vim.defer_fn(function()
 				if vim.fn.has("gui_running") == 1 then
-				-- GUI: Tree-sitter conceal from highlights.scm applies automatically
+				-- GUI: Tree-sitter conceal applies automatically from highlights.scm
 				else
 					-- Terminal fallback using matchadd()
 					vim.fn.matchadd("Conceal", "<=", 10, -1, { conceal = "⇐" })
@@ -34,7 +34,7 @@ M.setup = function()
 					vim.fn.matchadd("Conceal", ">=", 10, -1, { conceal = "≥" })
 					vim.fn.matchadd("Conceal", "/=", 10, -1, { conceal = "≠" })
 				end
-			end)
+			end, 50) -- 50ms delay
 		end,
 	})
 end
