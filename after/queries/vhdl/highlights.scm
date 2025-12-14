@@ -1,4 +1,4 @@
-; VHDL 2008 pretty operators
+; VHDL 2008 operators for GUI
 (signal_assignment "<=" @operator (#set! conceal "⇐"))
 (variable_assignment ":=" @operator (#set! conceal "≔"))
 (element_association "=>" @operator (#set! conceal "⇒"))

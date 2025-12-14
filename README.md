@@ -1,6 +1,6 @@
 # vhdl-pretty.nvim
 
-A Neovim plugin to render **VHDL 2008 operators** and assignments with prettified Unicode symbols using Tree-sitter. Fully compatible with **Neovim 0.9 → 0.11** and LazyVim.
+Render **VHDL 2008 operators** with Unicode symbols in Neovim.
 
 ## Features
 
@@ -8,30 +8,28 @@ A Neovim plugin to render **VHDL 2008 operators** and assignments with prettifie
 - `:=` → `≔` (variable assignment)  
 - `=>` → `⇒` (element association)  
 - Comparisons: `<=`, `>=`, `/=` → `≤`, `≥`, `≠`  
-- Works in GUI (Neovide, Goneovim) using Tree-sitter  
-- Works in terminal using fallback `matchadd()`  
+- Tree-sitter conceal in GUI (Neovide, Goneovim)  
+- Terminal fallback using `matchadd()`  
+- Fully compatible with **Neovim 0.9 → 0.11**  
+- LazyVim-compatible
 
 ## Installation (LazyVim)
 
-Add to your LazyVim plugin list:
-
 ```lua
 return {
-  "yourname/vhdl-pretty.nvim",
+  "j202/vhdl-pretty.nvim",
   dependencies = { "nvim-treesitter/nvim-treesitter" },
   ft = { "vhdl" },
   config = function()
     local ok, plugin = pcall(require, "vhdl-pretty")
-    if ok then
-      plugin.setup()
-    end
+    if ok then plugin.setup() end
   end,
 }
 ```
 
-### Optional: manual installation
+## Manual installation
 
-1. Place the `highlights.scm` file in:
+1. Place `highlights.scm` under:
 
 ```
 ~/.config/nvim/after/queries/vhdl/highlights.scm
@@ -43,13 +41,10 @@ return {
 ~/.config/nvim/lua/vhdl-pretty/init.lua
 ```
 
-1. Set LazyVim to load for VHDL filetypes only, or use the autocmd in `init.lua`.  
-
----
+1. Ensure `conceallevel` ≥ 1 (plugin sets 2 automatically).
 
 ## Notes
 
-- Conceallevel must be ≥1 (plugin sets 2 automatically).  
-- GUI Neovim: Tree-sitter conceal fully works.  
-- Terminal: fallback `matchadd()` guarantees visibility.  
-- Supports **VHDL 2008 edge cases**.
+- GUI: Tree-sitter conceal works fully  
+- Terminal: fallback ensures all operators are visible  
+- Supports **VHDL 2008 edge cases**
