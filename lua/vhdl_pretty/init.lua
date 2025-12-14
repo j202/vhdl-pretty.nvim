@@ -1,7 +1,7 @@
 local M = {}
 
 M.setup = function()
-	-- Safe Tree-sitter setup
+	-- Ensure Tree-sitter configs are loaded
 	local ts_ok, ts = pcall(require, "nvim-treesitter.configs")
 	if ts_ok then
 		ts.setup({
@@ -13,7 +13,7 @@ M.setup = function()
 		})
 	end
 
-	-- FileType autocmd for VHDL buffers
+	-- FileType autocmd for VHDL
 	vim.api.nvim_create_autocmd("FileType", {
 		pattern = "vhdl",
 		callback = function()
@@ -21,20 +21,12 @@ M.setup = function()
 			vim.opt_local.conceallevel = 2
 			vim.opt_local.concealcursor = "nc"
 
-			-- Defer execution slightly to ensure buffer/window is ready
-			vim.defer_fn(function()
-				if vim.fn.has("gui_running") == 1 then
-				-- GUI: Tree-sitter conceal applies automatically from highlights.scm
-				else
-					-- Terminal fallback using matchadd()
-					vim.fn.matchadd("Conceal", "<=", 10, -1, { conceal = "⇐" })
-					vim.fn.matchadd("Conceal", ":=", 10, -1, { conceal = "≔" })
-					vim.fn.matchadd("Conceal", "=>", 10, -1, { conceal = "⇒" })
-					vim.fn.matchadd("Conceal", "<=", 10, -1, { conceal = "≤" })
-					vim.fn.matchadd("Conceal", ">=", 10, -1, { conceal = "≥" })
-					vim.fn.matchadd("Conceal", "/=", 10, -1, { conceal = "≠" })
-				end
-			end, 50) -- 50ms delay
+			-- Ensure Tree-sitter highlighter attaches
+			local ok, hl = pcall(require, "vim.treesitter.highlighter")
+			if ok then
+				-- Attach highlighter for this buffer
+				hl.new(0, "vhdl")
+			end
 		end,
 	})
 end
