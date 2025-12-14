@@ -1,23 +1,38 @@
+-- Main plugin entry
 local M = {}
 
-function M.setup()
-	-- Enable conceal globally (safe defaults)
-	vim.opt.conceallevel = vim.opt.conceallevel:get() > 0 and vim.opt.conceallevel or 2
-	vim.opt.concealcursor = vim.opt.concealcursor:get() ~= "" and vim.opt.concealcursor or "nc"
+M.setup = function()
+	-- Safe Tree-sitter setup
+	local ts_ok, ts = pcall(require, "nvim-treesitter.configs")
+	if ts_ok then
+		ts.setup({
+			ensure_installed = { "vhdl" },
+			highlight = {
+				enable = true,
+				additional_vim_regex_highlighting = false,
+			},
+		})
+	end
 
-	-- Define highlight groups (user can override)
-	local hl = vim.api.nvim_set_hl
-	hl(0, "@vhdl.assign.signal", { bold = true })
-	hl(0, "@vhdl.assign.variable", { bold = true })
-	hl(0, "@vhdl.assoc", { bold = true })
-	hl(0, "@vhdl.compare", { bold = true })
-
-	-- Neovim 0.11+ needs explicit Tree-sitter start
+	-- FileType autocmd for VHDL buffers
 	vim.api.nvim_create_autocmd("FileType", {
 		pattern = "vhdl",
 		callback = function()
-			if vim.treesitter and vim.treesitter.start then
-				pcall(vim.treesitter.start, 0, "vhdl")
+			vim.opt_local.conceallevel = 2
+			vim.opt_local.concealcursor = "nc"
+
+			-- Tree-sitter active check
+			local active = vim.treesitter and vim.treesitter.highlighter.active
+			local hl_ok = active and active[vim.api.nvim_get_current_buf()] ~= nil
+
+			if not hl_ok then
+				-- Terminal fallback: matchadd
+				vim.fn.matchadd("Conceal", "<=", 10, -1, { conceal = "⇐" })
+				vim.fn.matchadd("Conceal", ":=", 10, -1, { conceal = "≔" })
+				vim.fn.matchadd("Conceal", "=>", 10, -1, { conceal = "⇒" })
+				vim.fn.matchadd("Conceal", "<=", 10, -1, { conceal = "≤" })
+				vim.fn.matchadd("Conceal", ">=", 10, -1, { conceal = "≥" })
+				vim.fn.matchadd("Conceal", "/=", 10, -1, { conceal = "≠" })
 			end
 		end,
 	})
