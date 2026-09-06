@@ -27,6 +27,13 @@ turn it off and your source is untouched.
 - Works with both nvim-treesitter's legacy (`master`) and current (`main`)
   branch — whichever you have installed.
 - LazyVim-compatible, including filetype-based lazy loading (`ft = "vhdl"`).
+- Each concealed symbol keeps the original token's two-column width (the
+  symbol, then a literal blank for the second column), so manually
+  column-aligned code — a common VHDL style, including wrapped
+  multi-line assignments — stays aligned. This is the same technique
+  Nerd Font icons use, for the same reason: conceal only ever accepts a
+  single replacement character, so the second column has to be filled
+  explicitly rather than left to shrink away.
 
 > **Caveat for the legacy `master` branch of nvim-treesitter:** on that
 > branch (not the current `main`), `setup()` falls back to calling
