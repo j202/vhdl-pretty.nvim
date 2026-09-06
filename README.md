@@ -8,17 +8,22 @@ turn it off and your source is untouched.
 
 ## Features
 
-| VHDL construct                  | Original | Displayed |
-| -------------------------------- | -------- | --------- |
-| Signal assignment                | `<=`     | `⇐`       |
-| Variable assignment              | `:=`     | `≔`       |
-| Element association              | `=>`     | `⇒`       |
-| Less-than-or-equal (comparison)  | `<=`     | `≤`       |
-| Greater-than-or-equal (comparison) | `>=`   | `≥`       |
-| Not equal                        | `/=`     | `≠`       |
+| VHDL construct                              | Original | Displayed |
+| -------------------------------------------- | -------- | --------- |
+| Signal assignment                            | `<=`     | `⇐`       |
+| Variable assignment                          | `:=`     | `≔`       |
+| Association arrow (aggregates, port/generic maps, `case...when`) | `=>` | `⇒` |
+| Less-than-or-equal (comparison)              | `<=`     | `≤`       |
+| Greater-than-or-equal (comparison)           | `>=`     | `≥`       |
+| Not equal                                    | `/=`     | `≠`       |
 
 - Tree-sitter based: signal-assignment `<=` and comparison `<=` are distinct
   grammar nodes, so they're told apart correctly and never confused.
+- Every place one of these tokens can occur is covered — checked against
+  the full grammar, not just the common cases — including port/generic
+  maps, `case` statements, and VHDL-2008 conditional-analysis directives.
+  Nothing falls through to a ligature-enabled terminal font's own
+  (differently-styled) rendering of the same text.
 - Works with both nvim-treesitter's legacy (`master`) and current (`main`)
   branch — whichever you have installed.
 - LazyVim-compatible, including filetype-based lazy loading (`ft = "vhdl"`).
