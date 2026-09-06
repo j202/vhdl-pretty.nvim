@@ -10,6 +10,18 @@ local function attach(bufnr)
 end
 
 M.setup = function()
+	-- vim.treesitter.query.get() caches its result forever once called. If
+	-- anything else (e.g. a generic "autostart treesitter for any filetype"
+	-- mechanism some configs run) queries vhdl highlights before this
+	-- plugin's own after/ directory lands on 'runtimepath', that stale,
+	-- conceal-less result stays cached for the rest of the session -
+	-- restarting Neovim doesn't help, since the same race just repeats.
+	-- Busting it here, now that this plugin is on 'runtimepath', forces a
+	-- fresh compile that actually includes our query.
+	pcall(function()
+		vim.treesitter.query.get:clear("vhdl", "highlights")
+	end)
+
 	-- Ensure the vhdl parser is installed, on both the new ("main") and
 	-- old ("master") nvim-treesitter APIs.
 	local ok_new, nt = pcall(require, "nvim-treesitter")
