@@ -5,8 +5,9 @@ Syntax-aware prettification of one VHDL operator, using Tree-sitter.
 In VHDL `<=` means two different things: signal assignment (`a <= b;`) and
 "less than or equal" (`if a <= b`). Ligature fonts draw both the same way,
 because a font can't read the syntax. This plugin uses Tree-sitter to tell
-them apart, and draws only the signal assignment as a left double arrow
-(`⇐`). Every other operator (`:=`, `=>`, `>=`, `/=`, and comparison `<=`) is
+them apart, and draws only the signal assignment as a left double arrow: a
+mirrored copy of your font's own `=>` ligature, so it matches the rest of
+your ligatures. Every other operator (`:=`, `=>`, `>=`, `/=`, and comparison `<=`) is
 left to your font's own ligatures. The plugin **does not modify files on
 disk**.
 
@@ -30,7 +31,8 @@ see a worse look than plain ligatures.
 - A terminal that draws ligatures, using a font that ligates **all five** of
   `<=`, `>=`, `:=`, `=>` and `/=`. The build refuses fonts that don't.
 - A terminal that falls back to other fonts via fontconfig for a codepoint
-  the main font lacks (Linux), or the system font folders on macOS.
+  the main font lacks. This is Linux; macOS is untested (and needs fontconfig
+  installed, e.g. from Homebrew).
 - Python 3 with `fonttools` and `uharfbuzz` (`pip install fonttools
   uharfbuzz`). If they are missing and `nix-shell` is available, it is used
   instead.
@@ -39,53 +41,70 @@ see a worse look than plain ligatures.
 
 ### Fonts tried
 
-Built and looked at in kitty: JetBrains Mono (Nerd Font Mono), Fira Code
+Tested in kitty: JetBrains Mono (Nerd Font Mono), Fira Code
 (plain and Nerd Font Mono), Cascadia Code, Victor Mono, Monaspace Argon.
 Hasklig has no `<=` ligature, so the build refuses it. Other ligature fonts
 may work; the build tells you if they don't. Only the Regular weight was
-tried.
+tested.
 
 ### Terminals
 
 Tested in kitty, where it looks right. In Konsole the right half of the
-arrow disappears while the cursor is on it, because Konsole repaints that
-cell. This is cosmetic. Other terminals are untested; the arrow depends on
+arrow disappears while the cursor is on it, because Konsole repaints the
+cell under the cursor and wipes out the part that overflows into it. Other terminals are untested; the arrow depends on
 the terminal letting a glyph overflow into the blank cell next to it.
 
-## Installation (LazyVim)
+## Setup
 
-```lua
-return {
-  "j202/vhdl-pretty.nvim",
-  dependencies = { "nvim-treesitter/nvim-treesitter" },
-  ft = { "vhdl" },
-  config = function()
-    require("vhdl_pretty").setup({
-      font = "JetBrainsMono Nerd Font Mono", -- family name, or a path to a font file
-    })
-  end,
-}
-```
+1. **Find your font's family name.** It must be the font your terminal uses,
+   otherwise the arrow won't match your other ligatures:
 
-Then run `:VhdlPrettyBuildFont` once. Restart your terminal if the arrow
-doesn't appear: some terminals read the font list only at start-up.
+   ```sh
+   fc-list : family | sort -u | grep -i mono
+   ```
 
-The build is deliberately not automatic: it writes a font file, so you run
-it yourself.
+2. **Install the plugin** and pass that name as `font` (a path to a font file
+   also works).
 
-## Manual installation (no plugin manager)
+   LazyVim / lazy.nvim:
 
-```sh
-git clone https://github.com/j202/vhdl-pretty.nvim \
-  ~/.config/nvim/pack/plugins/start/vhdl-pretty.nvim
-```
+   ```lua
+   return {
+     "j202/vhdl-pretty.nvim",
+     dependencies = { "nvim-treesitter/nvim-treesitter" },
+     ft = { "vhdl" },
+     cmd = { "VhdlPrettyBuildFont" },
+     config = function()
+       require("vhdl_pretty").setup({
+         font = "JetBrainsMono Nerd Font Mono", -- from step 1
+       })
+     end,
+   }
+   ```
 
-Call `setup()` from your `init.lua` (native packages don't do it for you),
-then run `:VhdlPrettyBuildFont`:
+   Without a plugin manager, clone it into Neovim's native package path and
+   call `setup()` from your `init.lua` (native packages don't do that for
+   you):
 
-```lua
-require("vhdl_pretty").setup({ font = "JetBrainsMono Nerd Font Mono" })
-```
+   ```sh
+   git clone https://github.com/j202/vhdl-pretty.nvim \
+     ~/.config/nvim/pack/plugins/start/vhdl-pretty.nvim
+   ```
+
+   ```lua
+   require("vhdl_pretty").setup({ font = "JetBrainsMono Nerd Font Mono" })
+   ```
+
+3. **Build the font, once.** Run `:VhdlPrettyBuildFont`. It writes a font
+   file, so it is deliberately not automatic. (`cmd = ...` in the spec above
+   is what lets the command load the plugin; without it, open a `.vhd` file
+   first.)
+
+4. **Restart your terminal.** Many terminals read the font list only at
+   start-up. Then open a `.vhd` file.
+
+If you later change the font your terminal uses, change `font` and run
+`:VhdlPrettyBuildFont` again; it overwrites the previous file.
 
 ## Conceal settings
 
